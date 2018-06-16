@@ -1,5 +1,5 @@
 function Typer (element, scenes) {
-  var config = { erase: 60, type: 80, break: 800 };
+  var config = { erase: 25, type: 50, break: 800 };
   var status = 'ready';
   var state = '';
   var currentSceneIndex = 0
