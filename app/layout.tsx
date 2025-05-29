@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "AppsemblyLine - Accelerate Your AppExchange Success",
-  description: "Tools, strategies, and support for Salesforce ISV partners to launch apps and grow their businesses."
+  description: "Tools, strategies, and support for Salesforce ISV partners to build, launch, and grow their business."
 }
 
 export default function RootLayout({
