@@ -1,12 +1,8 @@
 "use server"
 
-import { createClient } from "@supabase/supabase-js"
-
-interface WaitlistData {
+interface SponsorFormData {
   email: string
   captchaToken: string
-  companyName?: string
-  role?: string
 }
 
 async function verifyCaptcha(token: string): Promise<boolean> {
@@ -27,7 +23,40 @@ async function verifyCaptcha(token: string): Promise<boolean> {
   }
 }
 
-export async function joinWaitlist(data: WaitlistData) {
+async function submitLead(email: string) {
+    try {
+        const leadData = {
+            oid: '00Df4000003BLEJ',
+            first_name: 'AppsemblyLine',
+            last_name: 'Sponsor Inquiry',
+            company: 'Unknown',
+            email: email,
+            lead_source: 'AppsemblyLine Website - Sponsor Inquiry'
+        }
+
+        const params = new URLSearchParams();
+        for (const [key, value] of Object.entries(leadData)) {
+            params.set(key, value);
+        }
+
+        const response = await fetch("https://login.salesforce.com/servlet/servlet.WebToLead", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: `${params.toString()}`,
+        })
+        return {success: response.status === 200}
+    } catch (error) {
+        console.error("Lead submission error:", error)
+        return {
+            success: false,
+            error: "Something went wrong with the sponsor form submission. Please try again.",
+        }
+    }
+};
+
+export async function submitSponsorForm(data: SponsorFormData) {
   try {
     // Verify reCAPTCHA first
     const captchaValid = await verifyCaptcha(data.captchaToken)
@@ -38,56 +67,12 @@ export async function joinWaitlist(data: WaitlistData) {
       }
     }
 
-    // Check if environment variables are available
-    if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
-      console.error("Missing Supabase environment variables")
-      return {
-        success: false,
-        error: "Configuration error. Please try again later.",
-      }
-    }
-
-    const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY)
-
-    console.log("Attempting to insert:", { email: data.email })
-
-    const { data: insertData, error } = await supabase
-      .from("waitlist")
-      .insert([
-        {
-          email: data.email
-        },
-      ])
-
-    if (error) {
-      console.error("Supabase error details:", {
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code,
-      })
-
-      // Handle duplicate email error
-      if (error.code === "23505") {
-        return {
-          success: false,
-          error: "You're already on the waitlist!",
-        }
-      }
-
-      return {
-        success: false,
-        error: "Failed to join waitlist. Please try again.",
-      }
-    }
-
-    console.log("Successfully inserted:", insertData)
-    return { success: true }
+    return submitLead(data.email);
   } catch (error) {
-    console.error("Server error:", error)
+    console.error("Sponsor form server error:", error)
     return {
       success: false,
-      error: "Something went wrong. Please try again.",
+      error: "Something went wrong with the sponsor form submission. Please try again.",
     }
   }
 }
