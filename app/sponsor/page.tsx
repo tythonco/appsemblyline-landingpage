@@ -49,7 +49,8 @@ export default function SponsorPage() {
         setStatus("error")
         setMessage(result.error || "Something went wrong. Please try again.")
       }
-    } catch (_error) { // Renamed 'error' to '_error' to mark as unused
+    } catch (error) { // Renamed 'error' to '_error' to mark as unused
+      console.error(error)
       setStatus("error")
       setMessage("Something went wrong. Please try again.")
     } finally {
