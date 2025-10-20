@@ -5,21 +5,39 @@ interface SponsorFormData {
   captchaToken: string
 }
 
-async function verifyCaptcha(token: string): Promise<boolean> {
+async function verifyCaptcha(token: string, action: string): Promise<boolean> {
   try {
-    const response = await fetch("https://www.google.com/recaptcha/api/siteverify", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${token}`,
-    })
+    const PROJECT_ID = process.env.RECAPTCHA_GOOGLE_PROJECT_ID;
+    const API_KEY = process.env.RECAPTCHA_GOOGLE_API_KEY;
+    const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
-    const data = await response.json()
-    return data.success === true
+    if (!PROJECT_ID || !API_KEY || !SITE_KEY) {
+      console.error("Missing reCAPTCHA environment variables.");
+      return false;
+    }
+
+    const response = await fetch(
+      `https://recaptchaenterprise.googleapis.com/v1/projects/${PROJECT_ID}/assessments?key=${API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          event: {
+            token: token,
+            expectedAction: action,
+            siteKey: SITE_KEY,
+          },
+        }),
+      }
+    );
+
+    const data = await response.json();
+    return data.tokenProperties?.valid === true && data.riskAnalysis?.score > 0.5;
   } catch (error) {
-    console.error("reCAPTCHA verification error:", error)
-    return false
+    console.error("reCAPTCHA verification error:", error);
+    return false;
   }
 }
 
@@ -56,10 +74,10 @@ async function submitLead(email: string) {
     }
 };
 
-export async function submitSponsorForm(data: SponsorFormData) {
+export async function submitSponsorForm(data: SponsorFormData, action: string) {
   try {
     // Verify reCAPTCHA first
-    const captchaValid = await verifyCaptcha(data.captchaToken)
+    const captchaValid = await verifyCaptcha(data.captchaToken, action)
     if (!captchaValid) {
       return {
         success: false,
