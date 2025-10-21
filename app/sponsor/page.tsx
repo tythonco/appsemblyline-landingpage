@@ -39,7 +39,7 @@ export default function SponsorPage() {
         }
       })
 
-      const result = await submitSponsorForm({ email, captchaToken: token }, "submit")
+      const result = await submitSponsorForm({ email, captchaToken: token }, "sponsor_form")
 
       if (result.success) {
         setStatus("success")
