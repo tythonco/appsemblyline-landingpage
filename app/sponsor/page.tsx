@@ -74,7 +74,7 @@ export default function SponsorPage() {
         </div>
       </nav>
 
-      <main className="flex flex-col items-center justify-center flex-grow py-16 px-4 sm:px-6 w-full max-w-5xl">
+      <main className="flex flex-col lg:flex-row items-center lg:items-stretch justify-center flex-grow py-16 px-4 sm:px-6 w-full max-w-5xl gap-8">
         <div className="w-full max-w-md bg-gray-800/50 backdrop-blur-sm p-10 rounded-2xl shadow-2xl text-center border border-blue-700/50">
           <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">Partner with Us!</h1>
           <p className="text-base md:text-lg text-gray-300 mb-6">
@@ -116,6 +116,30 @@ export default function SponsorPage() {
               </form>
             )}
           </RecaptchaProvider>
+        </div>
+
+        <div className="w-full max-w-md bg-gray-800/50 backdrop-blur-sm p-10 rounded-2xl shadow-2xl text-center border border-blue-700/50">
+          <h2 className="text-2xl font-bold text-white mb-2">Sponsors</h2>
+          <p className="text-base text-gray-300 mb-6">
+            View AppsemblyLine&apos;s current sponsors
+          </p>
+          <ul className="flex flex-col gap-3">
+            {[
+              { label: "Opening Sponsor", href: "/sponsor-preroll" },
+              { label: "Feature Co-Sponsor", href: "/sponsor-midroll-a" },
+              { label: "Feature Co-Sponsor", href: "/sponsor-midroll-b" },
+              { label: "Closing Sponsor", href: "/sponsor-postroll" },
+            ].map((slot) => (
+              <li key={slot.href}>
+                <a
+                  href={slot.href}
+                  className="block p-3 border border-blue-700/50 bg-gray-900/50 text-blue-300 rounded-md font-semibold hover:bg-gray-900/80 hover:text-white transition-colors"
+                >
+                  {slot.label}
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
       </main>
 
